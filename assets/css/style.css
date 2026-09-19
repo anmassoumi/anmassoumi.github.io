@@ -217,7 +217,9 @@ p { color: var(--ink-soft); }
   padding: 0.35rem 0;
   border-bottom: 2px solid transparent;
   transition: color 0.15s ease, border-color 0.15s ease;
-}.nav-links a:hover,
+}
+
+.nav-links a:hover,
 .nav-links a.is-hovered { color: var(--ink); }
 .nav-links a.active {
   color: var(--ink);
@@ -239,7 +241,9 @@ p { color: var(--ink-soft); }
   border-radius: 50%;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
-.nav-social a svg { width: 1rem; height: 1rem; }.nav-social a:hover,
+.nav-social a svg { width: 1rem; height: 1rem; }
+
+.nav-social a:hover,
 .nav-social a.is-hovered {
   color: var(--structural);
   border-color: var(--structural);
@@ -303,7 +307,9 @@ p { color: var(--ink-soft); }
   border: 1px solid var(--structural);
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-.btn svg { width: 1rem; height: 1rem; }.btn:hover,
+.btn svg { width: 1rem; height: 1rem; }
+
+.btn:hover,
 .btn.is-hovered {
   background: var(--structural-dark);
   border-color: var(--structural-dark);
@@ -325,15 +331,14 @@ p { color: var(--ink-soft); }
 main.container { padding-bottom: 5rem; }
 
 .panel {
-  position: relative;
   border: 1px solid var(--line);
   background: var(--paper-raised);
   display: flex;
   flex-direction: column;
-  /* --rx / --ry / --lift are eased by site.js so the card leans toward the pointer */
-  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--lift, 0px));
-  transition: border-color 0.15s ease;
-}.panel:hover,
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.panel:hover,
 .panel.is-hovered {
   border-color: var(--structural);
 }
@@ -363,13 +368,14 @@ main.container { padding-bottom: 5rem; }
   max-height: 9rem;
   width: auto;
   object-fit: contain;
-  transform: translate(calc(var(--px, 0) * -10px), calc(var(--py, 0) * -8px));
   transition: transform 0.35s cubic-bezier(.2,.7,.3,1);
-}.panel:hover .panel-figure img,
+}
+
+.panel:hover .panel-figure img,
 .panel:focus-within .panel-figure img,
 .panel.is-hovered .panel-figure img,
 .panel:focus-within .panel-figure img {
-  transform: translate(calc(var(--px, 0) * -10px), calc(var(--py, 0) * -8px)) scale(1.06);
+  transform: scale(1.05);
 }
 
 .panel-body {
@@ -399,7 +405,9 @@ main.container { padding-bottom: 5rem; }
 .panel-figure::before { top: 0.6rem; left: 0.6rem; border-top: 2px solid var(--structural); border-left: 2px solid var(--structural); }
 .panel-figure::after  { top: 0.6rem; right: 0.6rem; border-top: 2px solid var(--structural); border-right: 2px solid var(--structural); }
 .panel-body::before   { bottom: 0.6rem; left: 0.6rem; border-bottom: 2px solid var(--structural); border-left: 2px solid var(--structural); }
-.panel-body::after    { bottom: 0.6rem; right: 0.6rem; border-bottom: 2px solid var(--structural); border-right: 2px solid var(--structural); }.panel:hover .panel-figure::before,
+.panel-body::after    { bottom: 0.6rem; right: 0.6rem; border-bottom: 2px solid var(--structural); border-right: 2px solid var(--structural); }
+
+.panel:hover .panel-figure::before,
 .panel:hover .panel-figure::after,
 .panel:hover .panel-body::before,
 .panel:hover .panel-body::after,
@@ -545,7 +553,9 @@ main.container { padding-bottom: 5rem; }
   color: var(--ink);
   font-size: 0.95rem;
   border-bottom: 1px solid var(--line);
-}.title-block dd a:hover,
+}
+
+.title-block dd a:hover,
 .title-block dd a.is-hovered { border-color: var(--structural); color: var(--accent); }
 
 .tb-social {
@@ -562,7 +572,9 @@ main.container { padding-bottom: 5rem; }
   border-radius: 50%;
   color: var(--ink-soft);
 }
-.tb-social a svg { width: 1rem; height: 1rem; }.tb-social a:hover,
+.tb-social a svg { width: 1rem; height: 1rem; }
+
+.tb-social a:hover,
 .tb-social a.is-hovered { color: var(--structural); border-color: var(--structural); }
 
 .footer-meta {
@@ -580,8 +592,6 @@ main.container { padding-bottom: 5rem; }
 /* ==========================================================================
    Fluid chrome — drafting cursor, coordinate readout, scroll rule, transitions
    ========================================================================== */
-
-.btn { will-change: transform; }
 
 /* Scroll rule — a measuring strip along the top edge that fills as you
    read down the page, echoing the dimension-line motif used elsewhere. */
@@ -606,28 +616,6 @@ main.container { padding-bottom: 5rem; }
   transform-origin: left;
   transition: width 0.08s linear;
 }
-
-/* Coordinate readout — a small CAD-style status readout that tracks the
-   pointer, in keeping with a drafting/engineering visual language. */
-.coord-readout {
-  position: fixed;
-  left: 1rem;
-  bottom: 1rem;
-  z-index: 40;
-  font-family: monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
-  color: var(--ink-soft);
-  background: var(--paper-raised);
-  border: 1px solid var(--line);
-  padding: 0.35rem 0.6rem;
-  opacity: 0;
-  transform: translateY(0.4rem);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  pointer-events: none;
-}
-.coord-readout.is-visible { opacity: 0.9; transform: translateY(0); }
-.coord-readout b { color: var(--structural); font-weight: 600; }
 
 /* Anteater cursor — an original anteater whose snout tip sits exactly on the
    pointer position. It turns to face the direction you move, walks while the
@@ -654,21 +642,22 @@ main.container { padding-bottom: 5rem; }
 .anteater-cursor img { position: absolute; max-width: none; }
 
 .anteater-cursor .a-shape {
-  stroke: var(--paper-raised);
-  stroke-width: 1.2;
+  stroke: var(--structural-dark);
+  stroke-width: 1.7;
   stroke-linejoin: round;
   stroke-linecap: round;
-  paint-order: stroke;
 }
 .anteater-cursor .a-body,
 .anteater-cursor .a-tail,
-.anteater-cursor .a-leg-near { fill: var(--structural); }
-.anteater-cursor .a-leg-far  { fill: var(--structural-dark); }
-.anteater-cursor .a-stripe   { fill: var(--accent); }
-.anteater-cursor .a-ear      { fill: var(--structural-dark); }
-.anteater-cursor .a-eye      { fill: var(--paper-raised); }
-.anteater-cursor .a-nose     { fill: var(--accent); }
-.anteater-cursor .a-fur      { stroke: #8fb0d8; stroke-width: 0.7; fill: none; stroke-linecap: round; }
+.anteater-cursor .a-leg-near,
+.anteater-cursor .a-ear     { fill: var(--accent); }
+.anteater-cursor .a-leg-far { fill: #e0ac00; }
+.anteater-cursor .a-stripe  { fill: var(--structural); }
+.anteater-cursor .a-line    { fill: none; stroke: var(--structural-dark); stroke-width: 1.7; stroke-linejoin: round; stroke-linecap: round; }
+.anteater-cursor .a-eye     { fill: #fff; stroke-width: 1; }
+.anteater-cursor .a-pupil,
+.anteater-cursor .a-nose    { fill: var(--structural-dark); }
+.anteater-cursor .a-fur     { stroke: #c99700; stroke-width: 0.8; fill: none; stroke-linecap: round; }
 
 /* Tongue — hidden until the pointer is over something clickable */
 .anteater-cursor .a-tongue {
@@ -708,7 +697,7 @@ body.has-cad-cursor label {
 }
 
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {
-  .anteater-cursor, .coord-readout { display: none !important; }
+  .anteater-cursor { display: none !important; }
   body.has-cad-cursor, body.has-cad-cursor a, body.has-cad-cursor button, body.has-cad-cursor label {
     cursor: auto;
   }
@@ -731,7 +720,7 @@ body.has-cad-cursor label {
 }
 
 /* ==========================================================================
-   Play layer — hover-by-anteater, ants, tilt, glare, reveals, letter wave
+   Play layer — hover-by-anteater, ants, soft reveals, heading letters
    ========================================================================== */
 
 /* Tongue also shoots out when the anteater catches an ant */
@@ -778,51 +767,25 @@ body.has-cad-cursor label {
   pointer-events: none;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
   color: var(--structural);
   text-shadow: 0 0 4px var(--paper-raised), 0 0 4px var(--paper-raised);
-  animation: ant-pop 0.75s ease-out forwards;
+  animation: ant-pop 0.9s ease-out forwards;
 }
 @keyframes ant-pop {
   from { opacity: 1; transform: translate(-50%, -6px); }
   to   { opacity: 0; transform: translate(-50%, -38px); }
 }
 
-/* ---- Panel glare (gold light that follows the pointer / anteater) ---- */
-.panel-glare {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  opacity: var(--glare, 0);
-  background: radial-gradient(
-    260px circle at var(--gx, 50%) var(--gy, 50%),
-    rgba(254, 204, 7, 0.2),
-    transparent 65%
-  );
-}
-
-/* ---- Scroll velocity skew — the grid leans into fast scrolling ---- */
-.grid { transform: skewY(var(--scroll-skew, 0deg)); }
-
-/* ---- Scroll reveal ---- */
+/* ---- Scroll reveal — a soft fade only, nothing slides around ---- */
 .js-reveal .reveal {
   opacity: 0;
-  translate: 0 28px;
-  scale: 0.985;
-  transition:
-    opacity 0.6s ease,
-    translate 0.75s cubic-bezier(.2,.7,.3,1),
-    scale 0.75s cubic-bezier(.2,.7,.3,1),
-    border-color 0.15s ease;
+  transition: opacity 0.6s ease;
 }
-.js-reveal .reveal.is-in {
-  opacity: 1;
-  translate: 0 0;
-  scale: 1;
-}
+.js-reveal .reveal.is-in { opacity: 1; }
 @media print {
-  .js-reveal .reveal { opacity: 1; translate: none; scale: none; }
+  .js-reveal .reveal { opacity: 1; }
 }
 
 /* ---- Heading letters that swell and turn blue near the pointer ---- */
