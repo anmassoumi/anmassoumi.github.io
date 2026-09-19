@@ -2,6 +2,7 @@
    Alexander Massoumi — portfolio stylesheet
    Built for the markup in index.html / generic.html / elements.html
    Fonts (linked in <head>): Space Grotesk (display), IBM Plex Sans (body)
+   Theme: UC Irvine Blue & Gold
    ========================================================================== */
 
 /* ---- Reset ---- */
@@ -19,9 +20,10 @@ button { font: inherit; }
   --paper: #eef2f5;
   --paper-raised: #ffffff;
   --line: #c9d3da;
-  --accent: #d9541f;
+  --accent: #fecc07;
   --accent-ink: #ffffff;
-  --structural: #2f5d82;
+  --structural: #255799;
+  --structural-dark: #143a63;
 
   --font-display: "Space Grotesk", Helvetica, Arial, sans-serif;
   --font-body: "IBM Plex Sans", Helvetica, Arial, sans-serif;
@@ -204,8 +206,8 @@ p { color: var(--ink-soft); }
 }
 .nav-social a svg { width: 1rem; height: 1rem; }
 .nav-social a:hover {
-  color: var(--accent);
-  border-color: var(--accent);
+  color: var(--structural);
+  border-color: var(--structural);
 }
 
 @media (max-width: 780px) {
@@ -261,15 +263,16 @@ p { color: var(--ink-soft); }
   font-weight: 600;
   font-size: 0.9rem;
   color: var(--accent-ink);
-  background: var(--ink);
+  background: var(--structural);
   padding: 0.85rem 1.5rem;
-  border: 1px solid var(--ink);
-  transition: background 0.15s ease, border-color 0.15s ease;
+  border: 1px solid var(--structural);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 .btn svg { width: 1rem; height: 1rem; }
 .btn:hover {
   background: var(--accent);
   border-color: var(--accent);
+  color: var(--ink);
 }
 
 /* ---- Section label ---- */
@@ -337,7 +340,7 @@ main.container { padding-bottom: 5rem; }
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.04em;
-  color: var(--accent);
+  color: var(--structural);
   border: 1px solid var(--accent);
   padding: 0.2rem 0.55rem;
   margin-bottom: 0.25rem;
@@ -370,7 +373,7 @@ main.container { padding-bottom: 5rem; }
   margin-top: auto;
   padding-top: 0.5rem;
 }
-.panel:hover .panel-link { color: var(--accent); }
+.panel:hover .panel-link { color: var(--structural-dark); }
 
 .grid {
   display: grid;
@@ -454,7 +457,7 @@ main.container { padding-bottom: 5rem; }
   font-size: 0.95rem;
   border-bottom: 1px solid var(--line);
 }
-.title-block dd a:hover { border-color: var(--accent); color: var(--accent); }
+.title-block dd a:hover { border-color: var(--accent); color: var(--structural); }
 
 .tb-social {
   display: flex;
@@ -471,7 +474,7 @@ main.container { padding-bottom: 5rem; }
   color: var(--ink-soft);
 }
 .tb-social a svg { width: 1rem; height: 1rem; }
-.tb-social a:hover { color: var(--accent); border-color: var(--accent); }
+.tb-social a:hover { color: var(--structural); border-color: var(--structural); }
 
 .footer-meta {
   margin-top: 2.5rem;
