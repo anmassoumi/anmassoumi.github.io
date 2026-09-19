@@ -31,7 +31,7 @@
   var hitNode = null;      // the node whose box counts as "the anteater's body"
 
   /* ======================================================================
-     ANTEATER CURSOR + COORDINATE READOUT (desktop, fine pointer only)
+     ANTEATER CURSOR (desktop, fine pointer only)
      The snout tip is the pointer's hotspot. The whole body counts for
      hovering: anything the anteater overlaps gets selected and clicked.
      ====================================================================== */
@@ -55,12 +55,14 @@
         '<rect class="a-shape a-leg-far a-leg-b" x="46" y="26" width="4.6" height="9" rx="2"/>' +
         '<path class="a-shape a-body" d="M2 18.5C3.5 16.5 12 12.5 21 10.5C26 5.5 38 4.5 46 8.5C52 11 56 15 57 19C56 26 51 29 44 29L28 29C24 28 21.5 24.5 20.5 21.5C13 21.5 6 20.5 2 18.5Z"/>' +
         '<path class="a-stripe" clip-path="url(#anteaterBodyClip)" d="M27 30L37 4L42 5L32 30Z"/>' +
+        '<path class="a-line" d="M2 18.5C3.5 16.5 12 12.5 21 10.5C26 5.5 38 4.5 46 8.5C52 11 56 15 57 19C56 26 51 29 44 29L28 29C24 28 21.5 24.5 20.5 21.5C13 21.5 6 20.5 2 18.5Z"/>' +
         '<rect class="a-shape a-leg-near a-leg-b" x="28" y="26" width="4.6" height="10" rx="2"/>' +
         '<rect class="a-shape a-leg-near a-leg-a" x="40" y="26" width="4.6" height="10" rx="2"/>' +
-        '<circle class="a-ear" cx="22.5" cy="10.5" r="2"/>' +
-        '<circle class="a-eye" cx="13.5" cy="15.2" r="1.1"/>' +
+        '<circle class="a-shape a-ear" cx="23" cy="9.6" r="2.6"/>' +
+        '<circle class="a-shape a-eye" cx="13.6" cy="14.6" r="2.4"/>' +
+        '<circle class="a-pupil" cx="12.8" cy="14.9" r="1"/>' +
         '<path class="a-tongue" d="M2 18.7H-10"/>' +
-        '<circle class="a-nose" cx="2.2" cy="18.5" r="1"/>' +
+        '<circle class="a-nose" cx="2.6" cy="18.4" r="1.3"/>' +
       '</g>' +
     '</svg>';
 
@@ -87,16 +89,7 @@
       hitNode = flip.querySelector("svg > g");
     }
     cursorEl.appendChild(flip);
-
-    var readout = document.createElement("div");
-    readout.className = "coord-readout";
-    readout.innerHTML =
-      'X <b id="cadX">000</b>&nbsp;&nbsp;Y <b id="cadY">000</b>' +
-      '&nbsp;&nbsp;ANTS <b id="antCount">0</b>';
-    document.body.append(cursorEl, readout);
-
-    var xEl = readout.querySelector("#cadX");
-    var yEl = readout.querySelector("#cadY");
+    document.body.appendChild(cursorEl);
 
     var artFacesRight = ANTEATER_IMAGE ? ANTEATER_FACES === "right" : false;
     var lastX = 0;
@@ -105,17 +98,10 @@
 
     interactive = Array.prototype.slice.call(document.querySelectorAll(INTERACTIVE));
 
-    function pad(n) {
-      n = Math.max(0, Math.round(n));
-      return n < 10 ? "00" + n : n < 100 ? "0" + n : "" + n;
-    }
-
     document.addEventListener("mousemove", function (e) {
       var x = e.clientX, y = e.clientY;
       pointer.x = x; pointer.y = y; pointer.active = true;
       cursorEl.style.transform = "translate(" + x + "px," + y + "px)";
-      xEl.textContent = pad(x);
-      yEl.textContent = pad(y);
 
       // Turn to face the direction of travel (dead-zone avoids jitter)
       var dx = x - lastX;
@@ -127,7 +113,6 @@
 
       // Walk while moving; stand still shortly after the mouse stops
       cursorEl.classList.add("is-visible", "is-moving");
-      readout.classList.add("is-visible");
       clearTimeout(stopTimer);
       stopTimer = setTimeout(function () {
         cursorEl.classList.remove("is-moving");
@@ -137,7 +122,6 @@
     root.addEventListener("mouseleave", function () {
       pointer.active = false;
       cursorEl.classList.remove("is-visible", "is-moving");
-      readout.classList.remove("is-visible");
     });
 
     // If the anteater's body is over something but the snout isn't, the real
@@ -262,10 +246,8 @@
     setTimeout(function () { spawnAnt(true); }, 2200 + Math.random() * 2000);
 
     eaten++;
-    var counter = document.getElementById("antCount");
-    if (counter) counter.textContent = eaten;
     var big = eaten % 5 === 0;
-    pop(tx, ty - 6, big ? "nom nom!" : "+1");
+    pop(tx, ty - 6, "zot! zot! zot!");
 
     if (cursorEl) {
       cursorEl.classList.add("is-eating");
@@ -347,70 +329,11 @@
   }
 
   /* ======================================================================
-     PANEL TILT + GLARE (desktop) — cards lean toward the pointer, or toward
-     the anteater's body, with a gold glow and a little image parallax.
-     ====================================================================== */
-  var tilts = [];
-  if (finePointer && !reduceMotion) {
-    Array.prototype.forEach.call(document.querySelectorAll(".panel"), function (panel) {
-      var glare = document.createElement("span");
-      glare.className = "panel-glare";
-      glare.setAttribute("aria-hidden", "true");
-      panel.appendChild(glare);
-      tilts.push({ el: panel, rx: 0, ry: 0, lift: 0, px: 0, py: 0, glare: 0, gx: 0, gy: 0, settled: false });
-    });
-  }
-
-  function updateTilt(dt) {
-    var k = 1 - Math.exp(-dt * 10);
-    for (var i = 0; i < tilts.length; i++) {
-      var T = tilts[i];
-      var isHover = T.el === hoverEl;
-      if (!isHover && T.settled) continue;
-
-      var tRx = 0, tRy = 0, tLift = 0, tPx = 0, tPy = 0, tGlare = 0;
-      if (isHover) {
-        var r = T.el.getBoundingClientRect();
-        var fx = pointer.x, fy = pointer.y;
-        if (!(fx >= r.left && fx <= r.right && fy >= r.top && fy <= r.bottom) && hitNode) {
-          var b = hitNode.getBoundingClientRect();
-          fx = clamp((b.left + b.right) / 2, r.left, r.right);
-          fy = clamp((b.top + b.bottom) / 2, r.top, r.bottom);
-        }
-        var nx = (fx - r.left) / r.width - 0.5;
-        var ny = (fy - r.top) / r.height - 0.5;
-        tRy = nx * 10; tRx = -ny * 8; tLift = -4; tPx = nx; tPy = ny; tGlare = 1;
-        T.gx = fx - r.left; T.gy = fy - r.top;
-      }
-
-      T.rx += (tRx - T.rx) * k;
-      T.ry += (tRy - T.ry) * k;
-      T.lift += (tLift - T.lift) * k;
-      T.px += (tPx - T.px) * k;
-      T.py += (tPy - T.py) * k;
-      T.glare += (tGlare - T.glare) * k;
-
-      var s = T.el.style;
-      s.setProperty("--rx", T.rx.toFixed(2) + "deg");
-      s.setProperty("--ry", T.ry.toFixed(2) + "deg");
-      s.setProperty("--lift", T.lift.toFixed(2) + "px");
-      s.setProperty("--px", T.px.toFixed(3));
-      s.setProperty("--py", T.py.toFixed(3));
-      s.setProperty("--glare", T.glare.toFixed(3));
-      s.setProperty("--gx", T.gx.toFixed(1) + "px");
-      s.setProperty("--gy", T.gy.toFixed(1) + "px");
-
-      T.settled = !isHover &&
-        Math.abs(T.rx) < 0.01 && Math.abs(T.ry) < 0.01 &&
-        Math.abs(T.lift) < 0.05 && T.glare < 0.01;
-    }
-  }
-
-  /* ======================================================================
      HEADING LETTERS — swell, lift and turn blue as the pointer nears them
      ====================================================================== */
+  var HEADING_WAVE = true; // set to false to switch the heading letter effect off
   var hosts = [];
-  if (finePointer && !reduceMotion) {
+  if (HEADING_WAVE && finePointer && !reduceMotion) {
     Array.prototype.forEach.call(document.querySelectorAll(".hero h1, .page-head h1"), function (h) {
       var label = Array.prototype.map.call(h.childNodes, function (n) {
         return n.nodeType === 3 ? n.textContent : " "; // <br> becomes a space
@@ -462,9 +385,9 @@
           t = clamp(1 - d / 140, 0, 1);
           t = t * t * (3 - 2 * t);
         }
-        var tRot = near ? clamp((cx - pointer.x) / 140, -1, 1) * t * 10 : 0;
-        L.dy += (-t * 14 - L.dy) * k;
-        L.sc += (1 + t * 0.16 - L.sc) * k;
+        var tRot = near ? clamp((cx - pointer.x) / 140, -1, 1) * t * 6 : 0;
+        L.dy += (-t * 8 - L.dy) * k;
+        L.sc += (1 + t * 0.1 - L.sc) * k;
         L.rot += (tRot - L.rot) * k;
         L.t += (t - L.t) * k;
         L.el.style.transform =
@@ -474,23 +397,6 @@
       }
       host.settled = !near && still;
     }
-  }
-
-  /* ======================================================================
-     SCROLL SKEW — the project grid leans into fast scrolling, then settles
-     ====================================================================== */
-  var lastScrollY = window.scrollY, skew = 0, skewOn = false;
-  function updateSkew(dt) {
-    var y = window.scrollY;
-    var v = (y - lastScrollY) / dt;
-    lastScrollY = y;
-    skew += (clamp(-v * 0.0007, -1.8, 1.8) - skew) * (1 - Math.exp(-dt * 9));
-    if (Math.abs(skew) < 0.003) {
-      if (skewOn) { root.style.setProperty("--scroll-skew", "0deg"); skewOn = false; }
-      return;
-    }
-    root.style.setProperty("--scroll-skew", skew.toFixed(3) + "deg");
-    skewOn = true;
   }
 
   /* ======================================================================
@@ -518,23 +424,6 @@
     }
   }
 
-  /* ---- Magnetic buttons ---- */
-  if (finePointer && !reduceMotion) {
-    document.querySelectorAll(".btn").forEach(function (btn) {
-      btn.addEventListener("mousemove", function (e) {
-        var r = btn.getBoundingClientRect();
-        var x = e.clientX - (r.left + r.width / 2);
-        var y = e.clientY - (r.top + r.height / 2);
-        btn.style.transition = "transform 0.08s ease-out";
-        btn.style.transform = "translate(" + x * 0.22 + "px," + y * 0.28 + "px)";
-      });
-      btn.addEventListener("mouseleave", function () {
-        btn.style.transition = "transform 0.35s cubic-bezier(.2,.7,.3,1)";
-        btn.style.transform = "translate(0,0)";
-      });
-    });
-  }
-
   /* ---- One animation loop drives everything above ---- */
   if (!reduceMotion) {
     var last = performance.now();
@@ -542,9 +431,7 @@
       var dt = clamp((now - last) / 1000, 0.001, 0.05);
       last = now;
       updateHover();
-      updateTilt(dt);
       updateLetters(dt);
-      if (finePointer) updateSkew(dt);
       updateAnts(dt);
       requestAnimationFrame(frame);
     })(last);
