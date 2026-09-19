@@ -77,6 +77,9 @@ p { color: var(--ink-soft); }
   width: 4.5rem;
   background: var(--structural);
   margin: 1.5rem 0 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: rule-draw 0.6s cubic-bezier(.65,0,.35,1) 0.32s forwards;
 }
 .hero-rule::before,
 .hero-rule::after {
@@ -86,9 +89,41 @@ p { color: var(--ink-soft); }
   width: 2px;
   height: 10px;
   background: var(--structural);
+  opacity: 0;
+  animation: tick-in 0.2s ease 0.9s forwards;
 }
 .hero-rule::before { left: 0; }
 .hero-rule::after { right: 0; }
+
+@keyframes rule-draw { to { transform: scaleX(1); } }
+@keyframes tick-in { to { opacity: 1; } }
+
+.hero h1,
+.page-head h1 {
+  opacity: 0;
+  transform: translateY(0.6rem);
+  animation: head-rise 0.55s cubic-bezier(.2,.7,.3,1) 0.05s forwards;
+}
+.hero p {
+  opacity: 0;
+  animation: head-rise 0.5s ease 0.55s forwards;
+}
+@keyframes head-rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rule,
+  .hero-rule::before,
+  .hero-rule::after,
+  .hero h1,
+  .page-head h1,
+  .hero p {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
 
 /* ---- Nav ---- */
 .nav {
@@ -307,6 +342,7 @@ main.container { padding-bottom: 5rem; }
 }
 
 .panel-figure {
+  position: relative;
   background: var(--paper);
   border-bottom: 1px solid var(--line);
   display: flex;
@@ -314,6 +350,7 @@ main.container { padding-bottom: 5rem; }
   justify-content: center;
   padding: 2rem;
   min-height: 12rem;
+  overflow: hidden;
 }
 .panel-featured .panel-figure {
   border-bottom: none;
@@ -323,14 +360,56 @@ main.container { padding-bottom: 5rem; }
   max-height: 9rem;
   width: auto;
   object-fit: contain;
+  transition: transform 0.35s cubic-bezier(.2,.7,.3,1);
+}
+.panel:hover .panel-figure img,
+.panel:focus-within .panel-figure img {
+  transform: scale(1.05);
 }
 
 .panel-body {
+  position: relative;
   padding: 1.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
   flex-grow: 1;
+}
+
+/* Corner registration marks — a nod to drawing alignment marks,
+   shown on interaction to reinforce that a panel is a target. */
+.panel-figure::before,
+.panel-figure::after,
+.panel-body::before,
+.panel-body::after {
+  content: "";
+  position: absolute;
+  width: 0.85rem;
+  height: 0.85rem;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(.2,.7,.3,1);
+  pointer-events: none;
+}
+.panel-figure::before { top: 0.6rem; left: 0.6rem; border-top: 2px solid var(--structural); border-left: 2px solid var(--structural); }
+.panel-figure::after  { top: 0.6rem; right: 0.6rem; border-top: 2px solid var(--structural); border-right: 2px solid var(--structural); }
+.panel-body::before   { bottom: 0.6rem; left: 0.6rem; border-bottom: 2px solid var(--structural); border-left: 2px solid var(--structural); }
+.panel-body::after    { bottom: 0.6rem; right: 0.6rem; border-bottom: 2px solid var(--structural); border-right: 2px solid var(--structural); }
+
+.panel:hover .panel-figure::before,
+.panel:hover .panel-figure::after,
+.panel:hover .panel-body::before,
+.panel:hover .panel-body::after,
+.panel:focus-within .panel-figure::before,
+.panel:focus-within .panel-figure::after,
+.panel:focus-within .panel-body::before,
+.panel:focus-within .panel-body::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-figure img { transition: none; }
 }
 
 .tag {
@@ -485,4 +564,124 @@ main.container { padding-bottom: 5rem; }
   .hero h1 { font-size: 2.4rem; }
   .page-head h1 { font-size: 2rem; }
   .panel-body { padding: 1.4rem; }
+}
+
+/* ==========================================================================
+   Fluid chrome — drafting cursor, coordinate readout, scroll rule, transitions
+   ========================================================================== */
+
+.btn { will-change: transform; }
+
+/* Scroll rule — a measuring strip along the top edge that fills as you
+   read down the page, echoing the dimension-line motif used elsewhere. */
+.scroll-rule {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 40;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--line) 0, var(--line) 1px,
+    transparent 1px, transparent 40px
+  );
+  pointer-events: none;
+}
+.scroll-rule__fill {
+  height: 100%;
+  width: 0%;
+  background: var(--structural);
+  transform-origin: left;
+  transition: width 0.08s linear;
+}
+
+/* Coordinate readout — a small CAD-style status readout that tracks the
+   pointer, in keeping with a drafting/engineering visual language. */
+.coord-readout {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 40;
+  font-family: monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  padding: 0.35rem 0.6rem;
+  opacity: 0;
+  transform: translateY(0.4rem);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.coord-readout.is-visible { opacity: 0.9; transform: translateY(0); }
+.coord-readout b { color: var(--structural); font-weight: 600; }
+
+/* Custom drafting cursor — a small crosshair ring that trails the real
+   cursor and tightens on interactive elements. Desktop, fine-pointer only. */
+.cad-cursor-dot,
+.cad-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 41;
+  pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.cad-cursor-dot {
+  width: 4px;
+  height: 4px;
+  background: var(--structural);
+}
+.cad-cursor-ring {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--structural);
+  transition: width 0.18s ease, height 0.18s ease, border-color 0.18s ease, opacity 0.2s ease;
+}
+.cad-cursor-ring::before,
+.cad-cursor-ring::after {
+  content: "";
+  position: absolute;
+  background: var(--structural);
+}
+.cad-cursor-ring::before { top: 50%; left: -5px; width: 4px; height: 1px; transform: translateY(-50%); }
+.cad-cursor-ring::after { top: -5px; left: 50%; width: 1px; height: 4px; transform: translateX(-50%); }
+.cad-cursor-ring.is-active {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-color: var(--accent);
+  background: rgba(254, 204, 7, 0.08);
+}
+
+body.has-cad-cursor,
+body.has-cad-cursor a,
+body.has-cad-cursor button,
+body.has-cad-cursor label {
+  cursor: none;
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cad-cursor-dot, .cad-cursor-ring, .coord-readout { display: none !important; }
+  body.has-cad-cursor, body.has-cad-cursor a, body.has-cad-cursor button, body.has-cad-cursor label {
+    cursor: auto;
+  }
+}
+
+/* Cross-document view transitions — gives navigation between pages a
+   brief, deliberate cross-fade instead of a hard reload flash. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition-old(root) {
+    animation: vt-out 0.28s ease both;
+  }
+  ::view-transition-new(root) {
+    animation: vt-in 0.38s cubic-bezier(.2,.7,.3,1) both;
+  }
+  @keyframes vt-out { to { opacity: 0; transform: translateY(-6px); } }
+  @keyframes vt-in { from { opacity: 0; transform: translateY(6px); } }
 }
